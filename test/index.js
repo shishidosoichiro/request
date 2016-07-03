@@ -30,7 +30,7 @@ describe('request', function(){
 			'Content-Type': 'text/plain; charset=UTF-8'
 		}
 	};
-	it('should , if options.direct is false.', function(done){
+	it('should return writable of response, if options.direct is false.', function(done){
 		var options = Object.assign(defaults, {direct: false, buffer: false});
 		es.readArray(['text1'])
 		.pipe(request(options))
@@ -44,7 +44,7 @@ describe('request', function(){
 			.on('end', done)
 		}))
 	});
-	it('should , if options.buffer is true.', function(done){
+	it('should return writable of response, if options.buffer is true.', function(done){
 		var options = Object.assign(defaults, {direct: false, buffer: true});
 		es.readArray(['text1'])
 		.pipe(request(options))
@@ -54,13 +54,27 @@ describe('request', function(){
 			done();
 		}))
 	});
-	it('should , if options.direct is true.', function(done){
+	it('should return writable of response body, if options.direct is true.', function(done){
 		var options = Object.assign(defaults, {direct: true});
 		es.readArray(['text1'])
 		.pipe(request(options))
 		.pipe(es.map(function(data){
 			data.toString().should.equal('text1');
 			done()
+		}))
+	});
+	it('should send request successfully, if body is nothing.', function(done){
+		var options = Object.assign(defaults, {direct: false, buffer: false});
+		es.readArray([])
+		.pipe(request(options))
+		.pipe(es.map(function(res){
+			res.statusCode.should.equal(200)
+			res.setEncoding('utf8')
+			.on('data', function(data){
+				done('error')
+			})
+			.on('error', done)
+			.on('end', done)
 		}))
 	});
 })

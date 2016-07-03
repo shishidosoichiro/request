@@ -20,6 +20,7 @@ util.inherits(Request, Duplex);
 // override 'end' method
 var end = Request.prototype.end;
 Request.prototype.end = function(){
+	if (!this.req) this._createRequest(this.options);
 	this.req.end();
 	end.call(this);
 };
