@@ -11,7 +11,7 @@ var defaults = {
 function Request(options) {
 	if (!(this instanceof Request)) return new Request(options);
 
-	options = Object.assign(defaults, options);
+	options = Object.assign({}, defaults, options);
 	Duplex.call(this, {objectMode: !options.direct});
 	this.options = options;
 };
