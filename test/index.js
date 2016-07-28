@@ -77,4 +77,19 @@ describe('request', function(){
 			.on('end', done)
 		}))
 	});
+	it('should emit error, if access to not found server.', function(done){
+		var options = Object.assign(defaults, {host: 'NOTFOUND'});
+		es.readArray(['text1'])
+		.pipe(request(options))
+		.on('error', done)
+		.pipe(es.map(function(res){
+			res.statusCode.should.equal(200)
+			res.setEncoding('utf8')
+			.on('data', function(data){
+				data.should.equal('text1');
+			})
+			.on('error', done)
+			.on('end', done)
+		}))
+	});
 })
