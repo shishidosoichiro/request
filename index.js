@@ -19,20 +19,28 @@ util.inherits(Request, Duplex);
 
 // override 'end' method
 var end = Request.prototype.end;
-Request.prototype.end = function(){
+Request.prototype.end = function(chunk, enc){
 	if (!this.req) this._createRequest(this.options);
-	this.req.end();
-	end.call(this);
+	this.req.end(chunk, enc);
 };
 Request.prototype._write = function(chunk, enc, callback){
-	if (!this.req) this._createRequest(this.options);
+	if (!this.req) this._createRequest(this.options, callback);
 
 	this.req.write(chunk);
-	callback();
+	//callback();
+};
+Request.prototype._flush = function(chunk, enc, callback){
+	if (!this.req) this._createRequest(this.options, callback);
+
+	this.req.write(chunk);
+	//callback();
 };
 Request.prototype._read = function(){};
-Request.prototype._createRequest = function(options){
+Request.prototype._createRequest = function(options, callback){
 	this.req = http.request(options);
+	if (callback) this.req.on('error', callback)
+	else this.req.on('error', this.emit.bind(this, 'error'))
+	this.req.on('end', end.bind(this));
 	this.req.on('response', function(res){
 		if (this.options.direct) {
 			res
